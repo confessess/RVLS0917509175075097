@@ -14142,7 +14142,7 @@ if not config.profile.msspoof then
 end
 
 if not config.profile.regionspoof then
-    config.profile.regionspoof = { enabled = false, value = ".gg/getinstance" }
+    config.profile.regionspoof = { enabled = false, value = ".gg/feuds" }
 end
 
 _G.FPSSpoofConnections = _G.FPSSpoofConnections or {}
@@ -14461,12 +14461,12 @@ regionTab:AddToggle("RegionSpoofEnabled", {
 
 regionTab:AddInput("RegionSpoofValue", {
     Text = "region value",
-    Default = ".gg/getinstance",
+    Default = ".gg/feuds",
     Numeric = false,
     Finished = false,
     Placeholder = "type region...",
     Callback = function(val)
-        config.profile.regionspoof.value = val or ".gg/getinstance"
+        config.profile.regionspoof.value = val or ".gg/feuds"
         if config.profile.regionspoof.enabled then
             applyRegionSpoof()
         end
