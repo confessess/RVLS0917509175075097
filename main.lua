@@ -21121,29 +21121,9 @@ end)
 end)();
 
 (function()
-local FrameTimer = tick()
-local FrameCounter = 0
-local FPS = 60
-
-local WatermarkConnection = game:GetService('RunService').Heartbeat:Connect(function()
-    FrameCounter += 1
-
-    if (tick() - FrameTimer) >= 1 then
-        FPS = FrameCounter
-        FrameTimer = tick()
-        FrameCounter = 0
-        Library:SetWatermark(('instance | %s fps'):format(
-            math.floor(FPS)
-        ))
-    end
-end)
-
-Library:SetWatermark('instance')
+Library:SetWatermarkVisibility(false)
 
 Library:OnUnload(function()
-    if WatermarkConnection then
-        WatermarkConnection:Disconnect()
-    end
     local mc = getgenv().InstanceMenuCursor
     if mc then
         if mc.cursor then pcall(function() mc.cursor:Remove() end) end
