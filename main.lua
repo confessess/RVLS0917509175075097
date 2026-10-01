@@ -3692,6 +3692,8 @@ do
 
     Library.Watermark = WatermarkOuter;
     Library.WatermarkText = WatermarkLabel;
+    Library.Watermark.Visible = false;
+    Library.WatermarkText.Text = "";
     Library:MakeDraggable(Library.Watermark);
 
 
@@ -3767,15 +3769,14 @@ do
 end;
 
 function Library:SetWatermarkVisibility(Bool)
-    Library.Watermark.Visible = Bool;
+    Library.Watermark.Visible = false;
 end;
 
 function Library:SetWatermark(Text)
     local X, Y = Library:GetTextBounds(Text, Library.Font, 14);
     Library.Watermark.Size = UDim2.new(0, X + 15, 0, (Y * 1.5) + 3);
-    Library:SetWatermarkVisibility(true)
-
-    Library.WatermarkText.Text = Text;
+    Library.Watermark.Visible = false;
+    Library.WatermarkText.Text = "";
 end;
 
 function Library:Notify(Text, Time)
