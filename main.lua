@@ -6158,6 +6158,7 @@ local DISABLE_TRACERS = false
 local hitSound     = { enabled=false, style="Rust HS", volume=0.5, pitch=1.0 }
 local localHitTargets = setmetatable({}, { __mode = "k" })
 local silentAim    = { enabled=false, hitPart="Head", fovRadius=100, autoShoot=false, followMuzzle=false, hitChance=100 }
+local silentAimV2  = { enabled=false, hitPart="Head", fovRadius=500, autoShoot=false, hitChance=100, showFov=false }
 local aimbot       = {
     enabled = false,
     masterEnabled = false,
@@ -6946,9 +6947,10 @@ end
 
 RunService.RenderStepped:Connect(function()
     local showSilentFOV = silentFOVContainer.Visible
+    local showSilentAimV2FOV = silentAimV2FOVContainer.Visible
     local showAimbotFOV = aimbotFOVContainer.Visible
     local hasTracers     = #bulletTracers > 0
-    if not showSilentFOV and not showAimbotFOV and not hasTracers then
+    if not showSilentFOV and not showSilentAimV2FOV and not showAimbotFOV and not hasTracers then
         return
     end
 
@@ -6964,6 +6966,21 @@ RunService.RenderStepped:Connect(function()
         end
         if silentFOVCfg.SpinOn then
             silentFOVStrokeGrad.Rotation = silentFOVCfg.OutlineRotation + (tick() * silentFOVCfg.SpinSpd * 90) % 360
+        end
+    end
+
+    if showSilentAimV2FOV then
+        local c = silentAimV2Center()
+        local r = silentAimV2.fovRadius
+        silentAimV2FOVContainer.Size     = UDim2.fromOffset(r * 2, r * 2)
+        silentAimV2FOVContainer.Position = UDim2.fromOffset(c.X - r, c.Y - r)
+        if silentAimV2Cfg.FilledAnimated then
+            silentAimV2FOVFillGrad.Rotation = math.sin(tick() * silentAimV2Cfg.FilledSpeed) * 180 + silentAimV2Cfg.FilledRotation
+        elseif silentAimV2Cfg.SpinOn then
+            silentAimV2FOVFillGrad.Rotation = silentAimV2Cfg.FilledRotation + (tick() * silentAimV2Cfg.SpinSpd * 90) % 360
+        end
+        if silentAimV2Cfg.SpinOn then
+            silentAimV2FOVStrokeGrad.Rotation = silentAimV2Cfg.OutlineRotation + (tick() * silentAimV2Cfg.SpinSpd * 90) % 360
         end
     end
 
@@ -7101,6 +7118,130 @@ local function shouldHitTarget()
     return math.random(1, 100) <= silentAim.hitChance
 end
 
+local silentAimV2Cfg = {
+    OutlineColor1       = Color3.fromRGB(0, 255, 128),
+    OutlineColor2       = Color3.fromRGB(86, 255, 208),
+    OutlineRotation     = 0,
+    OutlineThickness    = 1.5,
+    OutlineTransparency = 0,
+    FilledEnabled       = true,
+    FilledColor1        = Color3.fromRGB(0, 255, 128),
+    FilledColor2        = Color3.fromRGB(86, 255, 208),
+    FilledRotation      = 0,
+    FilledTransparency  = 0.5,
+    FilledAnimated      = false,
+    FilledSpeed         = 1,
+    SpinOn              = false,
+    SpinSpd             = 1,
+}
+local silentAimV2FOV = buildfov("SilentAimV2FOV", silentAimV2Cfg)
+local silentAimV2FOVContainer = silentAimV2FOV.container
+local silentAimV2FOVFill = silentAimV2FOV.fill
+local silentAimV2FOVFillGrad = silentAimV2FOV.fillgrad
+local silentAimV2FOVStroke = silentAimV2FOV.stroke
+local silentAimV2FOVStrokeGrad = silentAimV2FOV.strokegrad
+
+local function silentAimV2Center()
+    return screenCenter(Camera)
+end
+
+local function closestPlayerInSilentAimV2Fov(radius)
+    local center = silentAimV2Center()
+    local closest, closestDist = nil, math.huge
+    local cam = Camera
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local char = player.Character
+            if char then
+                local hum = char:FindFirstChildOfClass("Humanoid")
+                if hum and hum.Health > 0 and not char:FindFirstChildOfClass("ForceField") then
+                    local root = char:FindFirstChild("HumanoidRootPart")
+                    if root then
+                        local pos, onScreen = worldToScreen(root.Position, cam)
+                        if onScreen then
+                            local dx = pos.X - center.X
+                            local dy = pos.Y - center.Y
+                            local dist = math.sqrt(dx * dx + dy * dy)
+                            if dist <= radius and dist < closestDist then
+                                closest = char
+                                closestDist = dist
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return closest
+end
+
+local function shouldHitSilentAimV2()
+    if silentAimV2.hitChance >= 100 then return true end
+    if silentAimV2.hitChance <= 0 then return false end
+    return math.random(1, 100) <= silentAimV2.hitChance
+end
+
+local function fireSilentAimV2()
+    if not silentAimV2.enabled then
+        return
+    end
+
+    local cw = curweap2()
+    if cw and weaponstricted(cw) then
+        return
+    end
+
+    if not shouldHitSilentAimV2() then
+        return
+    end
+
+    local closest = closestPlayerInSilentAimV2Fov(silentAimV2.fovRadius)
+    if not closest then
+        return
+    end
+
+    local part = hitpartfromname(closest, silentAimV2.hitPart)
+    if not part then
+        return
+    end
+
+    local myChar = LocalPlayer.Character
+    local root = myChar and myChar:FindFirstChild("HumanoidRootPart")
+    if not root then
+        return
+    end
+
+    local equipped = localFighter and localFighter.EquippedItem
+    if not equipped then
+        return
+    end
+
+    local objId = equipped:Get("ObjectID")
+    if not objId then
+        return
+    end
+
+    local shootPos = root.Position
+    local targetPos = part.Position
+    local data = {
+        [utf8.char(1)] = {
+            [utf8.char(0)] = Utility:EncodeCFrame(CFrame.new(shootPos, targetPos)),
+            [utf8.char(1)] = Utility:EncodeCFrame(CFrame.new(shootPos, targetPos)),
+            [utf8.char(2)] = part,
+            [utf8.char(3)] = Utility:EncodeCFrame(CFrame.new(0.43, 0.25, 0.42)),
+        },
+    }
+
+    pcall(function()
+        ReplicatedStorage.Remotes.Replication.Fighter.UseItem:FireServer(
+            objId,
+            EnumLibrary:ToEnum("StartShooting"),
+            data,
+            nil
+        )
+    end)
+end
+
 local function closestinfov(radius, center)
     local closest, closestDist = nil, math.huge
     local cam = Camera
@@ -7186,6 +7327,12 @@ RunService.Heartbeat:Connect(function()
     if silentAim.enabled then
         if silentAim.autoShoot or UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
             firesilent()
+        end
+    end
+
+    if silentAimV2.enabled then
+        if silentAimV2.autoShoot or UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+            fireSilentAimV2()
         end
     end
 end)
@@ -7509,6 +7656,146 @@ silenttab:AddToggle("SilentAim", {
     Callback = function(state)
         silentAim.enabled = state
         if not state then curtarget = nil end
+    end
+})
+
+local silentAimV2Box = Tabs.Combat:AddRightGroupbox("silent aim v2")
+
+silentAimV2Box:AddToggle("SilentAimV2", {
+    Text     = "enable",
+    Default  = false,
+    Callback = function(val)
+        silentAimV2.enabled = val
+        if not val then curtarget = nil end
+    end
+}):AddKeyPicker("SilentAimV2Key", {
+    Text     = "Silent Aim V2",
+    Default  = "None",
+    Mode     = "Toggle",
+    NoUI     = true,
+    SyncToggleState = false,
+    Callback = function(state)
+        silentAimV2.enabled = state
+        if not state then curtarget = nil end
+    end
+})
+
+silentAimV2Box:AddToggle("SilentAimV2AutoShoot", {
+    Text     = "auto shoot",
+    Default  = false,
+    Callback = function(val)
+        silentAimV2.autoShoot = val
+    end
+})
+
+silentAimV2Box:AddSlider("SilentAimV2HitChance", {
+    Text     = "hit chance",
+    Default  = 100,
+    Min      = 0,
+    Max      = 100,
+    Rounding = 0,
+    Compact  = true,
+    Callback = function(val) silentAimV2.hitChance = val end
+})
+
+silentAimV2Box:AddDropdown("SilentAimV2HitPart", {
+    Text     = "hit part",
+    Default  = "Head",
+    Values   = HPlist,
+    Callback = function(val) silentAimV2.hitPart = val end
+})
+
+silentAimV2Box:AddSlider("SilentAimV2FOVRadius", {
+    Text     = "fov radius",
+    Default  = 500,
+    Min      = 10,
+    Max      = 750,
+    Rounding = 1,
+    Compact  = true,
+    Callback = function(val) silentAimV2.fovRadius = val end
+})
+
+silentAimV2Box:AddToggle("ShowSilentAimV2FOV", {
+    Text     = "show fov",
+    Default  = false,
+    Callback = function(val)
+        silentAimV2.showFov = val
+        silentAimV2FOVContainer.Visible = val
+    end
+}):AddColorPicker("SilentAimV2FOVOutlineColor1", {
+    Default = Color3.fromRGB(0, 255, 128),
+    Title = "outline color 1",
+    Callback = function(val)
+        silentAimV2Cfg.OutlineColor1 = val
+        silentAimV2FOVStrokeGrad.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, silentAimV2Cfg.OutlineColor1),
+            ColorSequenceKeypoint.new(1, silentAimV2Cfg.OutlineColor2),
+        })
+    end
+}):AddColorPicker("SilentAimV2FOVOutlineColor2", {
+    Default = Color3.fromRGB(86, 255, 208),
+    Title = "outline color 2",
+    Callback = function(val)
+        silentAimV2Cfg.OutlineColor2 = val
+        silentAimV2FOVStrokeGrad.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, silentAimV2Cfg.OutlineColor1),
+            ColorSequenceKeypoint.new(1, silentAimV2Cfg.OutlineColor2),
+        })
+    end
+})
+
+silentAimV2Box:AddToggle("SilentAimV2FOVFill", {
+    Text     = "fill fov",
+    Default  = true,
+    Callback = function(val)
+        silentAimV2Cfg.FilledEnabled = val
+        silentAimV2FOVFill.Visible = val
+    end
+}):AddColorPicker("SilentAimV2FOVFillColor1", {
+    Default = Color3.fromRGB(0, 255, 128),
+    Title = "fill color 1",
+    Callback = function(val)
+        silentAimV2Cfg.FilledColor1 = val
+        silentAimV2FOVFillGrad.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, silentAimV2Cfg.FilledColor1),
+            ColorSequenceKeypoint.new(1, silentAimV2Cfg.FilledColor2),
+        })
+    end
+}):AddColorPicker("SilentAimV2FOVFillColor2", {
+    Default = Color3.fromRGB(86, 255, 208),
+    Title = "fill color 2",
+    Callback = function(val)
+        silentAimV2Cfg.FilledColor2 = val
+        silentAimV2FOVFillGrad.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, silentAimV2Cfg.FilledColor1),
+            ColorSequenceKeypoint.new(1, silentAimV2Cfg.FilledColor2),
+        })
+    end
+})
+
+silentAimV2Box:AddSlider("SilentAimV2FOVFillTransparency", {
+    Text     = "fill transparency",
+    Default  = 0.5,
+    Min      = 0,
+    Max      = 1,
+    Rounding = 2,
+    Compact  = true,
+    Callback = function(val)
+        silentAimV2Cfg.FilledTransparency = val
+        silentAimV2FOVFill.BackgroundTransparency = val
+    end
+})
+
+silentAimV2Box:AddSlider("SilentAimV2FOVOutlineThickness", {
+    Text     = "outline thickness",
+    Default  = 1.5,
+    Min      = 0.5,
+    Max      = 5,
+    Rounding = 1,
+    Compact  = true,
+    Callback = function(val)
+        silentAimV2Cfg.OutlineThickness = val
+        silentAimV2FOVStroke.Thickness = val
     end
 })
 
@@ -15353,111 +15640,10 @@ game:GetService("RunService").Heartbeat:Connect(function()
 end)
 
 local antiaim = {
-    calculateyaw = function(deltatime)
-        local yaw = 0
-        local currenttime = tick()
-        
-        if settings.yawtype == "jitter" then
-            local minangle = math.rad(settings.minangle)
-            local maxangle = math.rad(settings.maxangle)
-            
-            if settings.randomangle then
-                yaw = utils.getrandominrange(-maxangle, maxangle)
-            else
-                yaw = math.random() > 0.5 and minangle or -minangle
-            end
-            
-        elseif settings.yawtype == "spinbot" then
-            local speed = utils.getrandominrange(
-                settings.minspeed / 10,
-                settings.maxspeed / 10
-            )
-            yaw = (currenttime * speed) % (2 * math.pi)
-            
-        elseif settings.yawtype == "random" then
-            if statemanager.framecounter % 30 == 0 then
-                yaw = utils.getrandominrange(
-                    -math.rad(settings.maxangle),
-                    math.rad(settings.maxangle)
-                )
-            else
-                yaw = statemanager.smoothyaw
-            end
-        end
-        
-        return yaw
-    end,
-    
-    calculatepitch = function()
-        local pitch = 0
-        
-        if settings.pitchtype == "jitter" then
-            local minangle = math.rad(settings.minangle)
-            local maxangle = math.rad(settings.maxangle)
-            
-            if settings.randomangle then
-                pitch = utils.getrandominrange(-maxangle, maxangle)
-            else
-                pitch = math.random() > 0.5 and minangle or -minangle
-            end
-            
-        elseif settings.pitchtype == "spinbot" then
-            pitch = math.sin(tick() * (settings.maxspeed / 10)) * math.rad(settings.maxangle)
-            
-        elseif settings.pitchtype == "random" then
-            if statemanager.framecounter % 20 == 0 then
-                pitch = utils.getrandominrange(math.rad(-89), math.rad(89))
-            else
-                pitch = statemanager.smoothpitch
-            end
-        end
-        
-        return pitch
-    end,
-    
-    calculateroll = function()
-        local roll = 0
-        
-        if settings.angletype == "tilt 45" then
-            roll = math.rad(45)
-        elseif settings.angletype == "tilt 90" then
-            roll = math.rad(90)
-        elseif settings.angletype == "upside down" then
-            roll = math.rad(180)
-        elseif settings.angletype == "custom" then
-            roll = math.rad(settings.customangle)
-        end
-        
-        return roll
-    end
+    aaConn = nil,
+    aaOrbit = 0,
+    aaT = 0,
 }
-
-local function updantiaim(deltatime)
-    if not settings.enabled then return end
-    if getgenv().InstanceConfigLoading then return end
-    if getgenv().InstanceConfigLoading == nil then return end
-    if settings.yawtype == "none" and settings.pitchtype == "none" and settings.angletype == "none" then
-        return
-    end
-    
-    local curweap = curweap2()
-    if not curweap then return end
-    
-    local character = localplayer.Character
-    if not character then return end
-    
-    local rootpart = character:FindFirstChild("HumanoidRootPart")
-    if not rootpart then return end
-    
-    statemanager.framecounter = statemanager.framecounter + 1
-
-    local calculatedyaw = antiaim.calculateyaw(deltatime)
-    local calculatedpitch = antiaim.calculatepitch()
-    local calculatedroll = antiaim.calculateroll()
-    
-    local rotationcframe = CFrame.Angles(calculatedpitch, calculatedyaw, calculatedroll)
-    rootpart.CFrame = rootpart.CFrame * rotationcframe
-end
 
 local function flushAntiAimMovementState()
     underground_oldpos = nil
@@ -15532,6 +15718,124 @@ localplayer.CharacterAdded:Connect(function()
     task.defer(flushAntiAimMovementState)
 end)
 
+local function startAa()
+    if antiaim.aaConn then
+        antiaim.aaConn:Disconnect()
+    end
+
+    antiaim.aaT = 0
+    antiaim.aaConn = runservice.Heartbeat:Connect(function(dt)
+        if getgenv().InstanceConfigLoading then
+            return
+        end
+
+        if not settings.enabled then
+            return
+        end
+
+        local char = localplayer.Character
+        if not char then
+            return
+        end
+
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then
+            return
+        end
+
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        local cam = workspace.CurrentCamera
+        if not cam then
+            return
+        end
+
+        if settings.yawtype == "none" and settings.pitchtype == "none" and settings.angletype == "none" then
+            return
+        end
+
+        antiaim.aaT = antiaim.aaT + dt
+        local t2 = antiaim.aaT
+        local yawType = settings.yawtype or "none"
+        local pitchType = settings.pitchtype or "none"
+        local rollType = settings.angletype or "none"
+        local yaw = 0
+        local pitch = 0
+        local roll = 0
+
+        if yawType == "jitter" then
+            local minangle = math.rad(settings.minangle)
+            local maxangle = math.rad(settings.maxangle)
+            if settings.randomangle then
+                yaw = utils.getrandominrange(-maxangle, maxangle)
+            else
+                yaw = math.random() > 0.5 and minangle or -minangle
+            end
+        elseif yawType == "spinbot" then
+            local speed = utils.getrandominrange(settings.minspeed / 10, settings.maxspeed / 10)
+            yaw = (t2 * speed) % (2 * math.pi)
+        elseif yawType == "random" then
+            if statemanager.framecounter % 30 == 0 then
+                yaw = utils.getrandominrange(-math.rad(settings.maxangle), math.rad(settings.maxangle))
+            else
+                yaw = statemanager.smoothyaw
+            end
+        end
+
+        if pitchType == "jitter" then
+            local minangle = math.rad(settings.minangle)
+            local maxangle = math.rad(settings.maxangle)
+            if settings.randomangle then
+                pitch = utils.getrandominrange(-maxangle, maxangle)
+            else
+                pitch = math.random() > 0.5 and minangle or -minangle
+            end
+        elseif pitchType == "spinbot" then
+            pitch = math.sin(t2 * (settings.maxspeed / 10)) * math.rad(settings.maxangle)
+        elseif pitchType == "random" then
+            if statemanager.framecounter % 20 == 0 then
+                pitch = utils.getrandominrange(math.rad(-89), math.rad(89))
+            else
+                pitch = statemanager.smoothpitch
+            end
+        end
+
+        if rollType == "tilt 45" then
+            roll = math.rad(45)
+        elseif rollType == "tilt 90" then
+            roll = math.rad(90)
+        elseif rollType == "upside down" then
+            roll = math.rad(180)
+        elseif rollType == "desync" then
+            yaw = math.rad(math.sin(t2 * 2.5) * (settings.maxangle or 45))
+            roll = math.rad(90 + math.sin(t2 * 3.6) * 45)
+        elseif rollType == "custom" then
+            roll = math.rad(settings.customangle)
+        end
+
+        statemanager.framecounter = statemanager.framecounter + 1
+        local rotationcframe = CFrame.Angles(pitch, yaw, roll)
+        hrp.CFrame = hrp.CFrame * rotationcframe
+
+        if hum then
+            hum.AutoRotate = false
+        end
+    end)
+end
+
+local function stopAa()
+    if antiaim.aaConn then
+        antiaim.aaConn:Disconnect()
+        antiaim.aaConn = nil
+    end
+
+    local hum = localplayer.Character and localplayer.Character:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.AutoRotate = true
+    end
+
+    settings.enabled = false
+end
+
 local antiaimbox = Tabs.Combat:AddLeftGroupbox('anti aim')
 
 antiaimbox:AddToggle("AntiAimEnable", {
@@ -15539,8 +15843,13 @@ antiaimbox:AddToggle("AntiAimEnable", {
     Default = false,
     Callback = function(value)
         settings.enabled = value
-        if getgenv().InstanceConfigLoading then return end
-        if not value then
+        if getgenv().InstanceConfigLoading then
+            return
+        end
+        if value then
+            startAa()
+        else
+            stopAa()
             flushAntiAimMovementState()
         end
     end
@@ -15552,6 +15861,9 @@ antiaimbox:AddDropdown("AntiAimYaw", {
     Text = "yaw",
     Callback = function(value)
         settings.yawtype = value
+        if settings.enabled then
+            startAa()
+        end
     end
 })
 
@@ -15561,15 +15873,21 @@ antiaimbox:AddDropdown("AntiAimPitch", {
     Text = "pitch",
     Callback = function(value)
         settings.pitchtype = value
+        if settings.enabled then
+            startAa()
+        end
     end
 })
 
 antiaimbox:AddDropdown("AntiAimAngle", {
-    Values = {"none", "tilt 45", "tilt 90", "upside down", "custom"},
+    Values = {"none", "tilt 45", "tilt 90", "upside down", "desync", "custom"},
     Default = "none",
     Text = "angle",
     Callback = function(value)
         settings.angletype = value
+        if settings.enabled then
+            startAa()
+        end
     end
 })
 
@@ -15642,9 +15960,11 @@ antiaimbox:AddToggle("AntiAimUnderground", {
     Default = false,
     Callback = function(value)
         underground_enabled = value
-            getgenv().InstanceUndergroundEnabled = value
-            if getgenv().InstanceConfigLoading then return end
-            if not value then
+        getgenv().InstanceUndergroundEnabled = value
+        if getgenv().InstanceConfigLoading then
+            return
+        end
+        if not value then
             underground_oldpos = nil
         end
     end
@@ -15657,8 +15977,6 @@ getgenv().InstanceSetUnderground = function(val)
         underground_oldpos = nil
     end
 end
-
-runservice.Heartbeat:Connect(updantiaim)
 
 v3 = Tabs.Misc:AddLeftGroupbox('auto ban - ranked')
 
