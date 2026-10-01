@@ -19891,7 +19891,7 @@ getgenv().crosshair = {
     scale_max = 1,
 
     show_ammo = false,
-    show_watermark = true,
+    show_watermark = false,
     show_lines = true,
 }
 
