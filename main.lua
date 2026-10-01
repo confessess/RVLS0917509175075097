@@ -14322,31 +14322,6 @@ nnTab:AddInput("NameSpoofValue", {
     end
 })
 
-skinTab:AddToggle("SkinChangerEnabled", {
-    Text = "enable",
-    Default = false,
-    Callback = function(val)
-        config.profile.skinchanger.enabled = val
-        if val and p.Character then
-            applyskin(p.Character)
-        end
-    end
-})
-
-skinTab:AddInput("SkinChangerValue", {
-    Text = "user id",
-    Default = "1",
-    Numeric = true,
-    Finished = true,
-    Placeholder = "type user id...",
-    Callback = function(val)
-        config.profile.skinchanger.userid = val or "1"
-        if config.profile.skinchanger.enabled and p.Character then
-            applyskin(p.Character)
-        end
-    end
-})
-
 local skinWeaponList = { "None", "Assault Rifle", "Battle Axe", "Bow", "Burst Rifle", "Chainsaw", "Crossbow", "Daggers", "Distortion", "Energy Rifle", "Energy Pistols", "Exogun", "Fists", "Flamethrower", "Flare Gun", "Flashbang", "Freeze Ray", "Grappler", "Grenade", "Grenade Launcher", "Gunblade", "Handgun", "Jump Pad", "Katana", "Knife", "Maul", "Medkit", "Minigun", "Molotov", "Paintball Gun", "Permafrost", "Revolver", "Riot Shield", "RPG", "Satchel", "Scythe", "Shorty", "Shotgun", "Slingshot", "Smoke Grenade", "Sniper", "Spear", "Spray", "Subspace Tripmine", "Trowel", "Uzi", "War Horn", "Warper", "Warpstone" }
 
 -- forward-declared: AddDropdown fires Callback synchronously, before the skin dropdown assignment below exists
