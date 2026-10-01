@@ -173,82 +173,6 @@ if not getgenv().InstanceSliderFillBound then
     end)
 end
 
-local AirFlow = loadstring(game:HttpGet("https://raw.githubusercontent.com/confessess/AIRFLOW0978109571095710975/main/source.lua"))()
-getgenv().AirFlow = AirFlow
-
-local window = AirFlow.CreateWindow({
-    Title = "AIRFLOW",
-    Theme = "Dark",
-    Accent = Color3.fromRGB(255, 145, 0),
-    Size = UDim2.fromOffset(620, 460),
-    Position = UDim2.fromOffset(120, 90),
-})
-
-local main = window:Tab({
-    Title = "Main",
-    Icon = "list",
-})
-
-local dag = window:Tab({
-    Title = "DAGs",
-    Icon = "code",
-})
-
-main:Section({ Name = "Overview" })
-main:Label({
-    Text = "AirFlow loaded successfully",
-    Color = Color3.fromRGB(255, 255, 255),
-})
-main:Paragraph({
-    Name = "Status",
-    Content = "This UI is powered by the AIRFLOW0978109571095710975 library.",
-})
-main:Button({
-    Name = "Refresh",
-    Callback = function()
-        print("[AirFlow] Refresh clicked")
-    end,
-})
-main:Toggle({
-    Name = "Enabled",
-    Default = true,
-    Callback = function(value)
-        print("[AirFlow] Enabled:", value)
-    end,
-})
-main:Slider({
-    Name = "Scale",
-    Min = 0,
-    Max = 100,
-    Value = 50,
-    Suffix = "%",
-    Callback = function(value)
-        print("[AirFlow] Scale:", value)
-    end,
-})
-
-dag:Section({ Name = "Pipeline" })
-dag:Button({
-    Name = "List DAGs",
-    Callback = function()
-        print("[AirFlow] Listing DAGs")
-    end,
-})
-dag:Button({
-    Name = "Trigger DAG",
-    Callback = function()
-        print("[AirFlow] Trigger DAG")
-    end,
-})
-dag:Button({
-    Name = "Run Task",
-    Callback = function()
-        print("[AirFlow] Running task")
-    end,
-})
-
-return
-
 local function loadInstanceLibrary()
     local cacheKey = "InstanceLibrary_Cached_Patched"
     if getgenv()[cacheKey] then return getgenv()[cacheKey]() end
@@ -321,46 +245,18 @@ local Options = {};
 getgenv().Toggles = Toggles;
 getgenv().Options = Options;
 
-local AirFlow = loadstring(game:HttpGet("https://raw.githubusercontent.com/confessess/AIRFLOW0978109571095710975/main/source.lua"))()
-getgenv().AirFlow = AirFlow
-
-local window = AirFlow.CreateWindow({
-    Title = "AIRFLOW",
-    Theme = "Dark",
-    Accent = Color3.fromRGB(255, 145, 0),
-    Size = UDim2.fromOffset(560, 440),
-    Position = UDim2.fromOffset(100, 100),
-})
-
-local mainTab = window:Tab({
-    Title = "Main",
-    Icon = "list",
-})
-
-mainTab:Section({ Name = "Overview" })
-mainTab:Label({
-    Text = "AirFlow loaded",
-    Color = Color3.fromRGB(255, 255, 255),
-})
-mainTab:Button({
-    Name = "Refresh",
-    Callback = function()
-        print("[AirFlow] refresh")
-    end,
-})
-
 local Library = {
     Registry = {};
     RegistryMap = {};
 
     HudRegistry = {};
 
-    FontColor = Color3.fromRGB(245, 247, 250);
-    MainColor = Color3.fromRGB(21, 30, 40);
-    BackgroundColor = Color3.fromRGB(15, 22, 31);
-    AccentColor = Color3.fromRGB(255, 145, 0);
-    OutlineColor = Color3.fromRGB(55, 69, 85);
-    RiskColor = Color3.fromRGB(255, 92, 92),
+    FontColor = Color3.fromRGB(245, 247, 255);
+    MainColor = Color3.fromRGB(12, 18, 29);
+    BackgroundColor = Color3.fromRGB(7, 12, 20);
+    AccentColor = Color3.fromRGB(92, 245, 255);
+    OutlineColor = Color3.fromRGB(33, 47, 71);
+    RiskColor = Color3.fromRGB(255, 50, 50),
 
     Black = Color3.new(0, 0, 0);
     Font = CustomFont or Enum.Font.Roboto,
@@ -724,135 +620,7 @@ function Library:UpdateColorsUsingRegistry()
     end;
 end;
 
-function Library:CreateAirflowPanel(Parent)
-    local Panel = Library:Create('Frame', {
-        BackgroundColor3 = Library.MainColor,
-        BorderColor3 = Library.OutlineColor,
-        BorderSizePixel = 1,
-        Size = UDim2.new(1, 0, 0, 225),
-        Parent = Parent,
-    });
 
-    local Title = Library:CreateLabel({
-        Text = 'Airflow API',
-        Position = UDim2.new(0, 12, 0, 12),
-        Size = UDim2.new(1, -24, 0, 22),
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextSize = 18,
-        Parent = Panel,
-    });
-
-    local UrlBox = Library:Create('TextBox', {
-        BackgroundColor3 = Library.BackgroundColor,
-        BorderColor3 = Library.OutlineColor,
-        PlaceholderText = 'http://localhost:8080/api/v1',
-        Text = Airflow.BaseURL,
-        TextColor3 = Library.FontColor,
-        PlaceholderColor3 = Color3.fromRGB(140, 150, 160),
-        Position = UDim2.new(0, 12, 0, 42),
-        Size = UDim2.new(1, -24, 0, 28),
-        Font = Library.Font,
-        TextSize = 13,
-        Parent = Panel,
-    });
-
-    local TokenBox = Library:Create('TextBox', {
-        BackgroundColor3 = Library.BackgroundColor,
-        BorderColor3 = Library.OutlineColor,
-        PlaceholderText = 'Bearer token (optional)',
-        Text = Airflow.Token,
-        TextColor3 = Library.FontColor,
-        PlaceholderColor3 = Color3.fromRGB(140, 150, 160),
-        Position = UDim2.new(0, 12, 0, 78),
-        Size = UDim2.new(1, -24, 0, 28),
-        Font = Library.Font,
-        TextSize = 13,
-        Parent = Panel,
-    });
-
-    local DagBox = Library:Create('TextBox', {
-        BackgroundColor3 = Library.BackgroundColor,
-        BorderColor3 = Library.OutlineColor,
-        PlaceholderText = 'dag_id',
-        Text = '',
-        TextColor3 = Library.FontColor,
-        PlaceholderColor3 = Color3.fromRGB(140, 150, 160),
-        Position = UDim2.new(0, 12, 0, 114),
-        Size = UDim2.new(1, -24, 0, 28),
-        Font = Library.Font,
-        TextSize = 13,
-        Parent = Panel,
-    });
-
-    local StatusLabel = Library:CreateLabel({
-        Text = 'Airflow idle',
-        Position = UDim2.new(0, 12, 0, 150),
-        Size = UDim2.new(1, -24, 0, 20),
-        TextXAlignment = Enum.TextXAlignment.Left,
-        TextColor3 = Color3.fromRGB(190, 195, 205),
-        TextSize = 12,
-        Parent = Panel,
-    });
-
-    local TriggerBtn = Library:Create('TextButton', {
-        BackgroundColor3 = Library.AccentColor,
-        BorderSizePixel = 0,
-        Text = 'Trigger DAG',
-        TextColor3 = Library.FontColor,
-        Font = Library.Font,
-        TextSize = 13,
-        Position = UDim2.new(0, 12, 0, 178),
-        Size = UDim2.new(0.48, -18, 0, 30),
-        Parent = Panel,
-    });
-
-    local RefreshBtn = Library:Create('TextButton', {
-        BackgroundColor3 = Library.OutlineColor,
-        BorderSizePixel = 0,
-        Text = 'Refresh DAGs',
-        TextColor3 = Library.FontColor,
-        Font = Library.Font,
-        TextSize = 13,
-        Position = UDim2.new(0.52, 6, 0, 178),
-        Size = UDim2.new(0.48, -18, 0, 30),
-        Parent = Panel,
-    });
-
-    TriggerBtn.MouseButton1Click:Connect(function()
-        if DagBox.Text == '' then
-            StatusLabel.Text = 'Enter a DAG id';
-            return;
-        end;
-
-        Airflow.BaseURL = UrlBox.Text ~= '' and UrlBox.Text or Airflow.BaseURL;
-        Airflow.Token = TokenBox.Text;
-
-        StatusLabel.Text = 'Triggering DAG...';
-        local result = Airflow:TriggerDag(DagBox.Text, {});
-
-        if result.ok then
-            StatusLabel.Text = 'Triggered ' .. DagBox.Text;
-        else
-            StatusLabel.Text = 'Error: ' .. tostring(result.error or result.status or 'request failed');
-        end;
-    end);
-
-    RefreshBtn.MouseButton1Click:Connect(function()
-        Airflow.BaseURL = UrlBox.Text ~= '' and UrlBox.Text or Airflow.BaseURL;
-        Airflow.Token = TokenBox.Text;
-
-        StatusLabel.Text = 'Fetching DAGs...';
-        local result = Airflow:GetDags();
-
-        if result.ok then
-            StatusLabel.Text = 'DAG list loaded';
-        else
-            StatusLabel.Text = 'Error: ' .. tostring(result.error or result.status or 'request failed');
-        end;
-    end);
-
-    return Panel;
-end;
 
 function Library:GiveSignal(Signal)
     -- Only used for signals not attached to library instances, as those should be cleaned up on object destruction by Roblox
@@ -5335,14 +5103,16 @@ local ThemeManager = {} do
 	-- if not isfolder(ThemeManager.Folder) then makefolder(ThemeManager.Folder) end
 
 	ThemeManager.Library = nil
+	ThemeManager.DefaultTheme = 'Light Hub'
 	ThemeManager.BuiltInThemes = {
-    ['Default'] = { 1, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1c1c1c","AccentColor":"c8956c","BackgroundColor":"141414","OutlineColor":"323232"}') },
-    ['Purple'] = { 2, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1c1c1c","AccentColor":"4400ff","BackgroundColor":"141414","OutlineColor":"323232"}') },
-    ['Fatality'] = { 3, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1842","AccentColor":"c50754","BackgroundColor":"191335","OutlineColor":"3c355d"}') },
-    ['Mint'] = { 4, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"242424","AccentColor":"3db488","BackgroundColor":"1c1c1c","OutlineColor":"373737"}') },
-    ['Tokyo Night'] = { 5, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"191925","AccentColor":"6759b3","BackgroundColor":"16161f","OutlineColor":"323232"}') },
-    ['Quartz'] = { 6, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"232330","AccentColor":"426e87","BackgroundColor":"1d1b26","OutlineColor":"27232f"}') },
-    ['Silver Lake'] = { 7, httpService:JSONDecode('{"FontColor":"c7c7c8","MainColor":"1b1e24","AccentColor":"5471bc","BackgroundColor":"121317","OutlineColor":"312e2e"}') },
+    ['Light Hub'] = { 1, httpService:JSONDecode('{"FontColor":"f5f7ff","MainColor":"0c121d","AccentColor":"5cf5ff","BackgroundColor":"070c14","OutlineColor":"21304a"}') },
+    ['Default'] = { 2, httpService:JSONDecode('{"FontColor":"f5f7ff","MainColor":"0c121d","AccentColor":"5cf5ff","BackgroundColor":"070c14","OutlineColor":"21304a"}') },
+    ['Purple'] = { 3, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1c1c1c","AccentColor":"4400ff","BackgroundColor":"141414","OutlineColor":"323232"}') },
+    ['Fatality'] = { 4, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1842","AccentColor":"c50754","BackgroundColor":"191335","OutlineColor":"3c355d"}') },
+    ['Mint'] = { 5, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"242424","AccentColor":"3db488","BackgroundColor":"1c1c1c","OutlineColor":"373737"}') },
+    ['Tokyo Night'] = { 6, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"191925","AccentColor":"6759b3","BackgroundColor":"16161f","OutlineColor":"323232"}') },
+    ['Quartz'] = { 7, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"232330","AccentColor":"426e87","BackgroundColor":"1d1b26","OutlineColor":"27232f"}') },
+    ['Silver Lake'] = { 8, httpService:JSONDecode('{"FontColor":"c7c7c8","MainColor":"1b1e24","AccentColor":"5471bc","BackgroundColor":"121317","OutlineColor":"312e2e"}') },
 }
 
 	function ThemeManager:ApplyTheme(theme)
@@ -5620,7 +5390,7 @@ end
 getgenv().InstanceApplyUiLayering = applyInstanceUiLayering
 
 local Window = Library:CreateWindow({
-    Title = 'instance',
+    Title = 'Light Hub | Rivals',
     Center = true,
     AutoShow = true,
     TabPadding = 6,
@@ -5717,38 +5487,7 @@ getgenv().InstanceIsMenuOpen = isInstanceMenuOpen
 
 getgenv().InstanceLanguage = getgenv().InstanceLanguage or "english"
 
-local InstanceWeaponTranslations = {
-    korean = {
-        ["Assault Rifle"] = "돌격 소총", ["Handgun"] = "권총", ["Shotgun"] = "산탄총", ["Sniper"] = "저격총",
-        ["Bow"] = "활", ["Burst Rifle"] = "버스트 소총", ["Crossbow"] = "석궁", ["Gunblade"] = "건블레이드",
-        ["RPG"] = "RPG", ["Energy Rifle"] = "에너지 소총", ["Flamethrower"] = "화염방사기",
-        ["Grenade Launcher"] = "유탄 발사기", ["Minigun"] = "미니건", ["Paintball Gun"] = "페인트볼 건",
-        ["Distortion"] = "디스토션", ["Permafrost"] = "영구 동토", ["Daggers"] = "단검", ["Flare Gun"] = "플레어 건",
-        ["Revolver"] = "리볼버", ["Shorty"] = "쇼티", ["Spray"] = "스프레이", ["Uzi"] = "UZI",
-        ["Energy Pistols"] = "에너지 권총", ["Exogun"] = "엑소건", ["Slingshot"] = "새총", ["Warper"] = "워퍼",
-        ["Fists"] = "주먹", ["Battle Axe"] = "전투 도끼", ["Chainsaw"] = "전기톱", ["Katana"] = "카타나",
-        ["Knife"] = "나이프", ["Riot Shield"] = "방패", ["Scythe"] = "낫", ["Maul"] = "망치",
-        ["Trowel"] = "모종삽", ["Grenade"] = "수류탄", ["Flashbang"] = "섬광탄", ["Freeze Ray"] = "냉동 광선",
-        ["Jump Pad"] = "점프 패드", ["Molotov"] = "화염병", ["Satchel"] = "가방", ["Smoke Grenade"] = "연막탄",
-        ["War Horn"] = "나팔", ["Medkit"] = "의료 키트", ["Substapce Tripmine"] = "지뢰", ["Warpstone"] = "워프석",
-        ["Hook"] = "갈고리", ["Spear"] = "창", ["Grappler"] = "그래플러", ["Maul"] = "망치",
-    },
-    spanish = {
-        ["Assault Rifle"] = "rifle de asalto", ["Handgun"] = "pistola", ["Shotgun"] = "escopeta", ["Sniper"] = "francotirador",
-        ["Bow"] = "arco", ["Burst Rifle"] = "rifle ráfaga", ["Crossbow"] = "ballesta", ["Gunblade"] = "espada-pistola",
-        ["RPG"] = "RPG", ["Energy Rifle"] = "rifle de energía", ["Flamethrower"] = "lanzallamas",
-        ["Grenade Launcher"] = "lanzagranadas", ["Minigun"] = "minigun", ["Paintball Gun"] = "pistola de paintball",
-        ["Distortion"] = "distorsión", ["Permafrost"] = "permafrost", ["Daggers"] = "dagas", ["Flare Gun"] = "pistola de bengalas",
-        ["Revolver"] = "revólver", ["Shorty"] = "shorty", ["Spray"] = "spray", ["Uzi"] = "uzi",
-        ["Energy Pistols"] = "pistolas de energía", ["Exogun"] = "exopistola", ["Slingshot"] = "honda", ["Warper"] = "teletransportador",
-        ["Fists"] = "puños", ["Battle Axe"] = "hacha de batalla", ["Chainsaw"] = "motosierra", ["Katana"] = "katana",
-        ["Knife"] = "cuchillo", ["Riot Shield"] = "escudo", ["Scythe"] = "guadaña", ["Maul"] = "mazo",
-        ["Trowel"] = "paleta", ["Grenade"] = "granada", ["Flashbang"] = "granada cegadora", ["Freeze Ray"] = "rayo congelante",
-        ["Jump Pad"] = "plataforma de salto", ["Molotov"] = "cóctel molotov", ["Satchel"] = "mochila", ["Smoke Grenade"] = "granada de humo",
-        ["War Horn"] = "cuerno de guerra", ["Medkit"] = "botiquín", ["Substapce Tripmine"] = "mina", ["Warpstone"] = "piedra de teletransporte",
-        ["Hook"] = "gancho", ["Spear"] = "lanza", ["Grappler"] = "gancho", ["Maul"] = "mazo",
-    },
-}
+local InstanceWeaponTranslations = {}
 
 local InstanceLocaleTable = {
     english = {
@@ -5759,45 +5498,19 @@ local InstanceLocaleTable = {
         skin = "skin", wrap = "wrap", rclick_hint = "r-click weapon: remove skin",
         unlock_all = "unlock all", inverted = "inverted", favorited = "favorited",
     },
-    korean = {
-        studs = "%.0f 스터드", studs_short = "%d 스터드", select_weapon = "무기를 먼저 선택하세요",
-        apply = "적용", apply_all = "전체 적용", language = "언어",
-        cosmetic_title = "코스메틱 변경", weapons = "무기", cosmetics = "코스메틱",
-        filter_weapons = "무기 검색...", filter_cosmetics = "코스메틱 검색...",
-        skin = "스킨", wrap = "랩", rclick_hint = "우클릭: 스킨 제거",
-        unlock_all = "전체 해제", inverted = "반전", favorited = "즐겨찾기",
-    },
-    spanish = {
-        studs = "%.0f studs", studs_short = "%d studs", select_weapon = "selecciona un arma primero",
-        apply = "aplicar", apply_all = "aplicar a todos", language = "idioma",
-        cosmetic_title = "cambiador de cosméticos", weapons = "armas", cosmetics = "cosméticos",
-        filter_weapons = "filtrar armas...", filter_cosmetics = "filtrar cosméticos...",
-        skin = "skin", wrap = "wrap", rclick_hint = "clic derecho: quitar skin",
-        unlock_all = "desbloquear todo", inverted = "invertido", favorited = "favorito",
-    },
 }
 
 getgenv().InstanceTranslateWeapon = function(name)
     if not name or type(name) ~= "string" then return name end
-    local lang = getgenv().InstanceLanguage or "english"
-    if lang == "english" then return name end
-    local pack = InstanceWeaponTranslations[lang]
-    return (pack and pack[name]) or name
+    return name
 end
 
 getgenv().InstanceTranslateLabel = function(text)
     if not text or type(text) ~= "string" then return text end
-    local lang = getgenv().InstanceLanguage or "english"
-    if lang == "english" then return text:lower() end
-    local translated = getgenv().InstanceTranslateWeapon(text)
-    if translated ~= text then return translated:lower() end
     return text:lower()
 end
 
 getgenv().InstanceGetUiFont = function()
-    if getgenv().InstanceLanguage == "korean" and getgenv().InstanceUIFont then
-        return getgenv().InstanceUIFont
-    end
     if Library and Library.Font then
         return Library.Font
     end
@@ -5818,8 +5531,6 @@ local InstanceFontHttp = game:GetService("HttpService")
 
 local InstanceFontSources = {
     english = { file = "instance_ui_en.otf", fontFile = "instance_ui_en.font", name = "InstanceUI_En", url = "https://github.com/nyrus573l/esp-fonts/raw/refs/heads/main/fortnite.otf" },
-    korean = { file = "instance_ui_ko.otf", fontFile = "instance_ui_ko.font", name = "InstanceUI_Ko", url = "https://github.com/googlefonts/noto-cjk/raw/main/Sans/OTF/Korean/NotoSansCJKkr-Regular.otf" },
-    spanish = { file = "instance_ui_es.otf", fontFile = "instance_ui_es.font", name = "InstanceUI_Es", url = "https://github.com/nyrus573l/esp-fonts/raw/refs/heads/main/fortnite.otf" },
 }
 
 local function loadInstanceLanguageFont(lang)
@@ -12661,7 +12372,8 @@ local function updatesling()
             sling.enabled = false
             stopslingTP()
         end
-        if not Toggles.AntiAimUnderground.Value then
+        local undergroundToggle = Toggles and Toggles.AntiAimUnderground
+        if not undergroundToggle or not undergroundToggle.Value then
             if getgenv().InstanceSetUnderground then
                 getgenv().InstanceSetUnderground(false)
             end
@@ -14194,12 +13906,276 @@ local skinTab = FrameScriptsufhner:AddTab("skin")
 
 local p = game:GetService("Players").LocalPlayer
 
+local skinChangerBox = Tabs.Character:AddRightGroupbox('skin changer')
+
+local SkinChangerWeaponList = { "None", "Assault Rifle", "Battle Axe", "Bow", "Burst Rifle", "Chainsaw", "Crossbow", "Daggers", "Distortion", "Energy Rifle", "Energy Pistols", "Exogun", "Fists", "Flamethrower", "Flare Gun", "Flashbang", "Freeze Ray", "Grappler", "Grenade", "Grenade Launcher", "Gunblade", "Handgun", "Jump Pad", "Katana", "Knife", "Maul", "Medkit", "Minigun", "Molotov", "Paintball Gun", "Permafrost", "Revolver", "Riot Shield", "RPG", "Satchel", "Scythe", "Shorty", "Shotgun", "Slingshot", "Smoke Grenade", "Sniper", "Spear", "Spray", "Subspace Tripmine", "Trowel", "Uzi", "War Horn", "Warper", "Warpstone" }
+
+-- correct per-weapon skin mapping (ported from skins.lua)
+local SkinChangerMap = {
+    ["Assault Rifle"] = {"Phoenix Rifle", "AK-47", "Boneclaw Rifle", "Pearl Rifle", "Augmented Rifle", "Gingerbread Augmented Rifle", "Tommy Gun", "AKEY-47", "10B Visits", "Glorious Assault Rifle"},
+    ["Battle Axe"] = {"Ban Axe", "Nordic Axe", "Cerulean Axe", "Tiki Axe", "Balloon Axe", "Mimic Axe", "Street Sign", "The Shred", "Keyttle Axe", "Glorious Battle Axe"},
+    ["Bow"] = {"Compound Bow", "Bat Bow", "Dream Bow", "Frostbite Bow", "Palm Bow", "Raven Bow", "Balloon Bow", "Beloved Bow", "Key Bow", "Glorious Bow"},
+    ["Burst Rifle"] = {"Pine Burst", "Spectral Burst", "Aqua Burst", "Electro Rifle", "FAMAS", "Sand FAMAS", "Pixel Burst", "Keyst Rifle", "Glorious Burst Rifle"},
+    ["Chainsaw"] = {"Sharksaw", "Blobsaw", "Buzzsaw", "Festive Buzzsaw", "Handsaws", "Mega Drill", "Glorious Chainsaw"},
+    ["Crossbow"] = {"Campfire Crossbow", "Crossbone", "Frostbite Crossbow", "Harpoon Crossbow", "Violin Crossbow", "Pixel Crossbow", "Arch Crossbow", "Glorious Crossbow"},
+    ["Daggers"] = {"Paper Planes", "Shurikens", "Starfish", "Aces", "Bat Daggers", "Cookies", "Broken Hearts", "Toaster", "Keynais", "Crystal Daggers", "Glorious Daggers"},
+    ["Distortion"] = {"Cyber Distortion", "Bubble Distortion", "Electropunk Distortion", "Magma Distortion", "Plasma Distortion", "Sleighstortion", "Experiment D15", "Glorious Distortion"},
+    ["Energy Rifle"] = {"New Year Energy Rifle", "Apex Rifle", "Hacker Rifle", "Hydro Rifle", "Sol Rifle", "Soul Rifle", "Void Rifle", "Glorious Energy Rifle"},
+    ["Energy Pistols"] = {"New Year Energy Pistols", "Apex Pistols", "Hacker Pistols", "Hydro Pistols", "Sol Pistols", "Hyperlaser Guns", "Soul Pistols", "Void Pistols", "Glorious Energy Pistols"},
+    ["Exogun"] = {"Midnight Festive Exogun", "Wondergun", "Exogourd", "Pearl Exogun", "Ray Gun", "Repulsor", "Singularity", "Glorious Exogun"},
+    ["Flashbang"] = {"Lightbulb", "Skullbang", "Shining Star", "Camera", "Disco Ball", "Sol", "Pixel Flashbang", "Glorious Flashbang"},
+    ["Flare Gun"] = {"Wrapped Flare Gun", "Dynamite Gun", "Banana Flare", "Firework Gun", "Pocket Volcano", "Vexed Flare Gun", "Glorious Flare Gun"},
+    ["Flamethrower"] = {"Lamethrower", "Bubblethrower", "Glitterthrower", "Jack O' Thrower", "Snowblower", "Extinguisher", "Pixel Flamethrower", "Rainbowthrower", "Keythrower", "Glorious Flamethrower"},
+    ["Fists"] = {"Brass Knuckles", "Festive Fists", "Pumpkin Claws", "Spy Gloves", "Boxing Gloves", "Fists of Hurt", "Crab Claws", "Pirate Hook", "Fist", "Glorious Fists"},
+    ["Freeze Ray"] = {"Wrapped Freeze Ray", "Bubble Ray", "Gum Ray", "Spider Ray", "Temporal Ray", "Cooler", "Glorious Freeze Ray"},
+    ["Grappler"] = {"Lifeguard Grappler", "Lasso", "Glorious Grappler"},
+    ["Grenade"] = {"Dynamite", "Frozen Grenade", "Fizz Bomb", "Jingle Grenade", "Water Balloon", "Cuddle Bomb", "Soul Grenade", "Whoopee Cushion", "Keynade", "Glorious Grenade"},
+    ["Grenade Launcher"] = {"Coconut Launcher", "Gearnade Launcher", "Snowball Launcher", "Uranium Launcher", "Balloon Launcher", "Skull Launcher", "Swashbuckler", "Glorious Grenade Launcher"},
+    ["Gunblade"] = {"Boneblade", "Crude Gunblade", "Elf's Gunblade", "Sharkbite", "Gunsaw", "Hyper Gunblade", "Keyblade", "Glorious Gunblade"},
+    ["Handgun"] = {"Gumball Handgun", "Pumpkin Handgun", "Towerstone Handgun", "Warp Handgun", "Blaster", "Gingerbread Handgun", "Sandgun", "Hand Gun", "Pixel Handgun", "Stealth Handgun", "Glorious Handgun"},
+    ["Jump Pad"] = {"Flamingo Floatie", "Spider Web", "Trampoline", "Bounce House", "Jolly Man", "Shady Chicken Sandwich", "Glorious Jump Pad"},
+    ["Katana"] = {"Swordfish", "New Year Katana", "Evil Trident", "Lightning Bolt", "Stellar Katana", "Cutlass", "Linked Sword", "Pixel Katana", "Saber", "Arch Katana", "Crystal Katana", "Keytana", "Riptide Katana", "Glorious Katana"},
+    ["Knife"] = {"Birthday Candle", "Chancla", "Machete", "Shark Tooth", "Balisong", "Candy Cane", "Caladbolg", "Karambit", "Pencil", "Keyrambit", "Keylisong", "Armature.001", "Glorious Knife"},
+    ["Maul"] = {"Giant Popsicle", "Ice Maul", "Sleigh Maul", "Ban Hammer", "Glorious Maul"},
+    ["Medkit"] = {"Briefcase", "Box of Chocolates", "Bucket of Candy", "Ice Cream", "Laptop", "Medkitty", "Milk & Cookies", "Sandwich", "Glorious Medkit"},
+    ["Minigun"] = {"Pumpkin Minigun", "Wrapped Minigun", "Shark Minigun", "Fighter Jet", "Lasergun 3000", "Pixel Minigun", "Glorious Minigun"},
+    ["Molotov"] = {"Campfire Stick", "Coffee", "Torch", "Hot Coals", "Ship In A Bottle", "Vexed Candle", "Arch Molotov", "Glorious Molotov"},
+    ["Paintball Gun"] = {"Ketchup Gun", "Lemonade Gun", "Brain Gun", "Slime Gun", "Snowball Gun", "Paintballoon Gun", "Boba Gun", "Glorious Paintball Gun"},
+    ["Permafrost"] = {"Ice Permafrost", "Snowman Permafrost", "Permasand", "Glorious Permafrost"},
+    ["Riot Shield"] = {"Broken Surfboard", "Door", "Sled", "Tombstone Shield", "Energy Shield", "Masterpiece", "Glorious Riot Shield"},
+    ["Revolver"] = {"Boneclaw Revolver", "Desert Eagle", "Cruise Revolver", "Peppergun", "Peppermint Sheriff", "Sheriff", "Keyvolver", "Glorious Revolver"},
+    ["RPG"] = {"Pencil Launcher", "Squid Launcher", "Sundae Launcher", "Cupcake Launcher", "Firework Launcher", "Nuke Launcher", "Pumpkin Launcher", "Rocket Launcher", "Spaceship Launcher", "RPKEY", "Glorious RPG"},
+    ["Satchel"] = {"Bag o' Money", "Lifeguard Satchel", "Notebook Satchel", "Suspicious Gift", "Advanced Satchel", "Potion Satchel", "Pizza Box", "Glorious Satchel"},
+    ["Scythe"] = {"Plastic Flamingo", "Anchor", "Bat Scythe", "Cryo Scythe", "Sakura Scythe", "Scythe of Death", "Palm Scythe", "Crystal Scythe", "Keythe", "Bug Net", "Glorious Scythe"},
+    ["Shorty"] = {"Lovely Shorty", "Not So Shorty", "Too Shorty", "Wrapped Shorty", "Bubble Shorty", "Demon Shorty", "Balloon Shorty", "Cannon Shorty", "Glorious Shorty"},
+    ["Shotgun"] = {"Cactus Shotgun", "Wrapped Shotgun", "Broomstick", "Balloon Shotgun", "Hyper Shotgun", "Shark Shotgun", "Shotkey", "Glorious Shotgun"},
+    ["Slingshot"] = {"Goalpost", "Palmshot", "Stick", "Boneshot", "Reindeer Slingshot", "Harp", "Lucky Horseshoe", "Keyshot", "Glorious Slingshot"},
+    ["Smoke Grenade"] = {"Balance", "Beach Ball", "Hourglass", "Snowglobe", "Emoji Cloud", "Eyeball", "Glorious Smoke Grenade"},
+    ["Sniper"] = {"Campfire Sniper", "Eyething Sniper", "Gingerbread Sniper", "Event Horizon", "Hyper Sniper", "Kraken Sniper", "Pixel Sniper", "Keyper", "Glorious Sniper"},
+    ["Spear"] = {"Giant Pencil", "Chark Kebab", "Studio Light", "Glorious Spear"},
+    ["Spray"] = {"Lovely Spray", "Nail Gun", "Pine Spray", "Boneclaw Spray", "Campfire Spray", "Spray Bottle", "Key Spray", "Glorious Spray"},
+    ["Subspace Tripmine"] = {"DIY Tripmine", "Trick or Treat", "Spring", "Don't Press", "Dev-in-the-Box", "Hazard Sign", "Pot o' Keys", "Glorious Subspace Tripmine"},
+    ["Trowel"] = {"Garden Shovel", "Paintbrush", "Plastic Shovel", "Pumpkin Carver", "Scooper", "Snow Shovel", "Glorious Trowel"},
+    ["Uzi"] = {"Ducky Uzi", "Pine Uzi", "Demon Uzi", "Water Uzi", "Electro Uzi", "Money Gun", "Keyzi", "Glorious Uzi"},
+    ["War Horn"] = {"Mammoth Horn", "Megaphone", "Air Horn", "Boneclaw Horn", "Trumpet", "Lifeguard Whistle", "Glorious War Horn"},
+    ["Warper"] = {"Bubbler", "Electropunk Warper", "Frost Warper", "Glitter Warper", "Arcane Warper", "Experiment W4", "Hotel Bell", "Glorious Warper"},
+    ["Warpstone"] = {"Cyber Warpstone", "Warpbone", "Electropunk Warpstone", "Unstable Warpstone", "Warp Juice", "Teleport Disc", "Warpstar", "Warpeye", "Glorious Warpstone"},
+}
+
+local skinChangerWeaponsFolder
+local skinChangerCases = {}
+local skinChangerOriginals = {}
+local skinChangerApplied = {}
+local skinChangerGlitchy = false
+local skinChangerWeapon = "None"
+local skinChangerSkin = "None"
+
+local function getSkinChangerWeaponsFolder()
+    if skinChangerWeaponsFolder then return skinChangerWeaponsFolder end
+    local ok, result = pcall(function()
+        return p.PlayerScripts.Assets.ViewModels.Weapons
+    end)
+    if ok then skinChangerWeaponsFolder = result end
+    return skinChangerWeaponsFolder
+end
+
+local function getSkinChangerCases()
+    if #skinChangerCases > 0 then return skinChangerCases end
+    local ok, viewModels = pcall(function()
+        return p.PlayerScripts.Assets.ViewModels
+    end)
+    if not ok then return skinChangerCases end
+    for _, child in ipairs(viewModels:GetChildren()) do
+        if child:IsA("Folder") and child.Name ~= "Weapons" then
+            table.insert(skinChangerCases, child)
+        end
+    end
+    return skinChangerCases
+end
+
+local function getAllSkinChangerSkins()
+    local all = {}
+    for _, case in ipairs(getSkinChangerCases()) do
+        for _, skin in ipairs(case:GetChildren()) do
+            table.insert(all, skin.Name)
+        end
+    end
+    table.sort(all)
+    return all
+end
+
+local function getSkinChangerOptions(weaponName)
+    if skinChangerGlitchy then
+        return getAllSkinChangerSkins()
+    end
+    return SkinChangerMap[weaponName] or { "No skins available" }
+end
+
+local function saveSkinChangerOriginal(weaponName)
+    if skinChangerOriginals[weaponName] then return end
+    local folder = getSkinChangerWeaponsFolder()
+    if not folder then return end
+    local weapon = folder:FindFirstChild(weaponName)
+    if not weapon then return end
+    skinChangerOriginals[weaponName] = {}
+    for _, child in ipairs(weapon:GetChildren()) do
+        table.insert(skinChangerOriginals[weaponName], child:Clone())
+    end
+end
+
+local function applySkinChanger(weaponName, skinName)
+    local ok = pcall(function()
+        local folder = getSkinChangerWeaponsFolder()
+        if not folder then return false end
+        local weapon = folder:FindFirstChild(weaponName)
+        if not weapon then return false end
+
+        local skinModel = nil
+        for _, case in ipairs(getSkinChangerCases()) do
+            local found = case:FindFirstChild(skinName)
+            if found then
+                skinModel = found
+                break
+            end
+        end
+        if not skinModel then return false end
+
+        saveSkinChangerOriginal(weaponName)
+
+        local existingJoints = {}
+        for _, child in ipairs(weapon:GetDescendants()) do
+            if child:IsA("Motor6D") or child:IsA("Weld") or child:IsA("WeldConstraint") then
+                table.insert(existingJoints, {
+                    Part0 = child.Part0, Part1 = child.Part1,
+                    C0 = child.C0, C1 = child.C1,
+                    Name = child.Name, Class = child.ClassName
+                })
+            end
+        end
+
+        weapon:ClearAllChildren()
+        for _, child in ipairs(skinModel:GetChildren()) do
+            child:Clone().Parent = weapon
+        end
+
+        local hasJoints = false
+        for _, child in ipairs(weapon:GetDescendants()) do
+            if child:IsA("Motor6D") or child:IsA("Weld") then
+                hasJoints = true
+                break
+            end
+        end
+
+        if not hasJoints then
+            for _, jointData in ipairs(existingJoints) do
+                if jointData.Part0 and jointData.Part1 and jointData.Part0.Parent and jointData.Part1.Parent then
+                    local joint = Instance.new(jointData.Class)
+                    joint.Name = jointData.Name
+                    joint.Part0 = jointData.Part0
+                    joint.Part1 = jointData.Part1
+                    joint.C0 = jointData.C0
+                    joint.C1 = jointData.C1
+                    joint.Parent = jointData.Part0
+                end
+            end
+        end
+
+        skinChangerApplied[weaponName] = skinName
+        return true
+    end)
+    return ok
+end
+
+local function resetSkinChangerWeapon(weaponName)
+    local folder = getSkinChangerWeaponsFolder()
+    if not folder then return end
+    local weapon = folder:FindFirstChild(weaponName)
+    if not weapon then return end
+    if skinChangerOriginals[weaponName] then
+        weapon:ClearAllChildren()
+        for _, child in ipairs(skinChangerOriginals[weaponName]) do
+            child.Parent = weapon
+        end
+        skinChangerOriginals[weaponName] = nil
+        skinChangerApplied[weaponName] = nil
+    end
+end
+
+-- forward-declared: AddDropdown fires Callback synchronously, before the skin dropdown assignment below exists
+local skinChangerSkinDropdown
+
+skinChangerBox:AddToggle("SkinChangerGlitchyMode", {
+    Text = "use any skin (glitchy)",
+    Default = false,
+    Callback = function(val)
+        skinChangerGlitchy = val
+        if skinChangerWeapon ~= "None" and skinChangerSkinDropdown then
+            skinChangerSkinDropdown:SetValues(getSkinChangerOptions(skinChangerWeapon))
+            skinChangerSkin = "None"
+        end
+    end
+})
+
+local skinChangerWeaponDropdown = skinChangerBox:AddDropdown("SkinChangerWeaponSelect", {
+    Text = "weapon",
+    Values = SkinChangerWeaponList,
+    Default = "None",
+    Callback = function(val)
+        skinChangerWeapon = val or "None"
+        if val and val ~= "None" then
+            local options = getSkinChangerOptions(val)
+            if skinChangerSkinDropdown then
+                skinChangerSkinDropdown:SetValues(options)
+            end
+            skinChangerSkin = "None"
+        else
+            if skinChangerSkinDropdown then
+                skinChangerSkinDropdown:SetValues({ "Select a weapon first" })
+            end
+            skinChangerSkin = "None"
+        end
+    end
+})
+
+skinChangerSkinDropdown = skinChangerBox:AddDropdown("SkinChangerSkinSelect", {
+    Text = "skin",
+    Values = { "Select a weapon first" },
+    Default = "None",
+    Callback = function(val)
+        skinChangerSkin = val or "None"
+        if skinChangerWeapon ~= "None" and skinChangerSkin ~= "None" and skinChangerSkin ~= "No skins available" then
+            applySkinChanger(skinChangerWeapon, skinChangerSkin)
+        end
+    end
+})
+
+skinChangerBox:AddButton("Reset Weapon", function()
+    if skinChangerWeapon ~= "None" then
+        resetSkinChangerWeapon(skinChangerWeapon)
+    end
+end)
+
+skinChangerBox:AddButton("Reset All", function()
+    for weaponName in pairs(skinChangerApplied) do
+        resetSkinChangerWeapon(weaponName)
+    end
+end)
+
 if not config.profile.namespoof then 
     config.profile.namespoof = { enabled = false, value = "hi", verified = false, premium = false }
 end
 
 if not config.profile.skinchanger then
     config.profile.skinchanger = { enabled = false, userid = "1" }
+end
+
+if not config.profile.weaponSkinChanger then
+    config.profile.weaponSkinChanger = {
+        enabled = false,
+        weapon = "None",
+        skin = "None",
+        useAllSkins = false,
+    }
 end
 
 local lastSpoof = ""
@@ -14369,6 +14345,69 @@ skinTab:AddInput("SkinChangerValue", {
         end
     end
 })
+
+local skinWeaponList = { "None", "Assault Rifle", "Battle Axe", "Bow", "Burst Rifle", "Chainsaw", "Crossbow", "Daggers", "Distortion", "Energy Rifle", "Energy Pistols", "Exogun", "Fists", "Flamethrower", "Flare Gun", "Flashbang", "Freeze Ray", "Grappler", "Grenade", "Grenade Launcher", "Gunblade", "Handgun", "Jump Pad", "Katana", "Knife", "Maul", "Medkit", "Minigun", "Molotov", "Paintball Gun", "Permafrost", "Revolver", "Riot Shield", "RPG", "Satchel", "Scythe", "Shorty", "Shotgun", "Slingshot", "Smoke Grenade", "Sniper", "Spear", "Spray", "Subspace Tripmine", "Trowel", "Uzi", "War Horn", "Warper", "Warpstone" }
+
+-- forward-declared: AddDropdown fires Callback synchronously, before the skin dropdown assignment below exists
+local weaponSkinSelectDropdown
+
+local weaponSkinDropdown = skinTab:AddDropdown("WeaponSkinChangerWeapon", {
+    Text = "weapon",
+    Values = skinWeaponList,
+    Default = config.profile.weaponSkinChanger.weapon or "None",
+    Callback = function(val)
+        config.profile.weaponSkinChanger.weapon = val or "None"
+        if val and val ~= "None" then
+            local skins = getWeaponSkinList(val)
+            if weaponSkinSelectDropdown then
+                weaponSkinSelectDropdown:SetValues(skins)
+            end
+            if config.profile.weaponSkinChanger.skin and not table.find(skins, config.profile.weaponSkinChanger.skin) then
+                config.profile.weaponSkinChanger.skin = skins[1] or "None"
+            end
+            if config.profile.weaponSkinChanger.enabled and config.profile.weaponSkinChanger.skin and config.profile.weaponSkinChanger.skin ~= "None" then
+                applyWeaponSkin(val, config.profile.weaponSkinChanger.skin)
+            end
+        else
+            if weaponSkinSelectDropdown then
+                weaponSkinSelectDropdown:SetValues({ "Select a weapon first" })
+            end
+            config.profile.weaponSkinChanger.skin = "None"
+        end
+    end
+})
+
+weaponSkinSelectDropdown = skinTab:AddDropdown("WeaponSkinChangerSkin", {
+    Text = "skin",
+    Values = { "Select a weapon first" },
+    Default = config.profile.weaponSkinChanger.skin or "None",
+    Callback = function(val)
+        config.profile.weaponSkinChanger.skin = val or "None"
+        if config.profile.weaponSkinChanger.enabled and config.profile.weaponSkinChanger.weapon and config.profile.weaponSkinChanger.weapon ~= "None" and val and val ~= "None" then
+            applyWeaponSkin(config.profile.weaponSkinChanger.weapon, val)
+        end
+    end
+})
+
+skinTab:AddButton("Use All Skins", function()
+    config.profile.weaponSkinChanger.useAllSkins = not config.profile.weaponSkinChanger.useAllSkins
+    local weapon = config.profile.weaponSkinChanger.weapon or "None"
+    if weapon ~= "None" then
+        local skins = getWeaponSkinList(weapon)
+        weaponSkinSelectDropdown:SetValues(skins)
+        config.profile.weaponSkinChanger.skin = skins[1] or "None"
+        if config.profile.weaponSkinChanger.enabled and config.profile.weaponSkinChanger.skin and config.profile.weaponSkinChanger.skin ~= "None" then
+            applyWeaponSkin(weapon, config.profile.weaponSkinChanger.skin)
+        end
+    else
+        weaponSkinSelectDropdown:SetValues({ "Select a weapon first" })
+        config.profile.weaponSkinChanger.skin = "None"
+    end
+end)
+
+if weaponSkinSelectDropdown and config.profile.weaponSkinChanger and config.profile.weaponSkinChanger.weapon and config.profile.weaponSkinChanger.weapon ~= "None" then
+    weaponSkinSelectDropdown:SetValues(getWeaponSkinList(config.profile.weaponSkinChanger.weapon))
+end
 
 p.CharacterAdded:Connect(function(c)
     u(c)
@@ -21584,12 +21623,12 @@ MenuGroup:AddSlider('tgbtgbbktbkmb', {
 
 MenuGroup:AddDropdown('InstanceLanguage', {
     Text = 'language',
-    Values = { 'english', 'korean', 'spanish' },
+    Values = { 'english' },
     Default = getgenv().InstanceLanguage or 'english',
     Callback = function(val)
-        getgenv().InstanceLanguage = val
+        getgenv().InstanceLanguage = val or 'english'
         if getgenv().InstanceReloadLanguageFont then
-            getgenv().InstanceReloadLanguageFont(val)
+            getgenv().InstanceReloadLanguageFont(getgenv().InstanceLanguage)
         end
         if getgenv().InstanceApplyUIFont then
             getgenv().InstanceApplyUIFont()
