@@ -16,7 +16,7 @@ local function instanceShowLoadingNotification()
     label.BackgroundTransparency = 1
     label.Font = Enum.Font.GothamMedium
     label.TextSize = 22
-    label.TextColor3 = Color3.fromRGB(0, 200, 255)
+    label.TextColor3 = Color3.fromRGB(255, 111, 181)
     label.Text = "loading."
     label.Parent = gui
     local accum = 0
@@ -174,18 +174,18 @@ if not getgenv().InstanceSliderFillBound then
 end
 
 local function loadInstanceLibrary()
-    local cacheKey = "InstanceLibrary_Cached_Patched"
+    local cacheKey = "InstanceLibrary_Cached_Patched_v3"
     if getgenv()[cacheKey] then return getgenv()[cacheKey]() end
     local rawSrc
-    if isfile and isfile("InstanceLibrary_Patched.lua") then
-        rawSrc = readfile("InstanceLibrary_Patched.lua")
+    if isfile and isfile("InstanceLibrary_Patched_v3.lua") then
+        rawSrc = readfile("InstanceLibrary_Patched_v3.lua")
         if rawSrc:find("200, 149, 108", 1, true) or rawSrc:find("200, 149, 106", 1, true) then
             rawSrc = nil
         end
     end
     if not rawSrc then
-        if isfile and isfile("InstanceLibrary_Patched.lua") then
-            pcall(delfile, "InstanceLibrary_Patched.lua")
+        if isfile and isfile("InstanceLibrary_Patched_v3.lua") then
+            pcall(delfile, "InstanceLibrary_Patched_v3.lua")
         end
         rawSrc = [==[local qwe;qwe=hookfunction(getrenv().setmetatable,newcclosure(function(Table,Metatable)
     if type(Metatable)=="table" and rawget(Metatable,"__mode")=="kv" then
@@ -251,11 +251,11 @@ local Library = {
 
     HudRegistry = {};
 
-    FontColor = Color3.fromRGB(245, 247, 255);
-    MainColor = Color3.fromRGB(12, 18, 29);
-    BackgroundColor = Color3.fromRGB(7, 12, 20);
-    AccentColor = Color3.fromRGB(92, 245, 255);
-    OutlineColor = Color3.fromRGB(33, 47, 71);
+    FontColor = Color3.fromRGB(255, 240, 247);
+    MainColor = Color3.fromRGB(42, 20, 38);
+    BackgroundColor = Color3.fromRGB(28, 13, 26);
+    AccentColor = Color3.fromRGB(255, 111, 181);
+    OutlineColor = Color3.fromRGB(90, 45, 76);
     RiskColor = Color3.fromRGB(255, 50, 50),
 
     Black = Color3.new(0, 0, 0);
@@ -341,6 +341,16 @@ function Library:Create(Class, Properties)
         end;
     end;
 
+    if type(Class) == 'string' and (Class == 'Frame' or Class == 'TextButton' or Class == 'ScrollingFrame') and Properties.BackgroundTransparency ~= 1 then
+        local S = Properties.Size;
+        local Thin = typeof(S) == 'UDim2' and ((S.Y.Scale == 0 and S.Y.Offset <= 3) or (S.X.Scale == 0 and S.X.Offset <= 3));
+
+        if not Thin then
+            _Instance.BorderSizePixel = 0;
+            Instance.new('UICorner', _Instance).CornerRadius = UDim.new(0, 6);
+        end;
+    end;
+
     return _Instance;
 end;
 
@@ -349,6 +359,7 @@ function Library:ApplyTextStroke(Inst)
 
     Library:Create('UIStroke', {
         Color = Color3.new(0, 0, 0);
+        Transparency = 0.75;
         Thickness = 1;
         LineJoinMode = Enum.LineJoinMode.Miter;
         Parent = Inst;
@@ -4009,6 +4020,14 @@ end);
         BorderColor3 = 'OutlineColor';
     });
 
+    Outer.BackgroundTransparency = 1;
+    Inner.BackgroundTransparency = 0;
+    Inner.ClipsDescendants = true;
+    Inner:FindFirstChildOfClass('UICorner').CornerRadius = UDim.new(0, 18);
+    Outer:FindFirstChildOfClass('UICorner').CornerRadius = UDim.new(0, 18);
+    Library:Create('UIStroke', { Color = Library.AccentColor; Transparency = 0.55; Thickness = 1.5; Parent = Inner; });
+
+
     local function ColorToHex(Color)
         return string.format("#%.2X%.2X%.2X", math.floor(Color.R * 255), math.floor(Color.G * 255), math.floor(Color.B * 255))
     end
@@ -4057,8 +4076,8 @@ Library:AddToRegistry(WindowLabel, {
     local MainSectionOuter = Library:Create('Frame', {
         BackgroundTransparency = 1;
         BorderSizePixel = 0;
-        Position = UDim2.new(0, 8, 0, 35);
-        Size = UDim2.new(1, -16, 1, -43);
+        Position = UDim2.new(0, 8, 0, 76);
+        Size = UDim2.new(1, -16, 1, -84);
         ZIndex = 1;
         Parent = Inner;
     });
@@ -4073,17 +4092,19 @@ Library:AddToRegistry(WindowLabel, {
     });
 
 local TabArea = Library:Create('Frame', {
-    BackgroundTransparency = 1;
-    Position = UDim2.new(1, -320, 0, 7);
-    Size = UDim2.new(0, 310, 0, 21);
+    BackgroundColor3 = Library.BackgroundColor;
+    Position = UDim2.new(0, 12, 0, 36);
+    Size = UDim2.new(1, -24, 0, 34);
     ZIndex = 5;
     Parent = Inner;
 });
+TabArea:FindFirstChildOfClass('UICorner').CornerRadius = UDim.new(0, 17);
 
     local TabListLayout = Library:Create('UIListLayout', {
-        Padding = UDim.new(0, Config.TabPadding == 0 and 12 or Config.TabPadding);
+        Padding = UDim.new(0, 6);
         FillDirection = Enum.FillDirection.Horizontal;
-        HorizontalAlignment = Enum.HorizontalAlignment.Right;
+        HorizontalAlignment = Enum.HorizontalAlignment.Center;
+        VerticalAlignment = Enum.VerticalAlignment.Center;
         SortOrder = Enum.SortOrder.LayoutOrder;
         Parent = TabArea;
     });
@@ -4111,13 +4132,15 @@ end;
         local TabButtonWidth = Library:GetTextBounds(Name, Library.Font, 14);
 
         local TabButton = Library:Create('TextButton', {
+            BackgroundColor3 = Library.AccentColor;
             BackgroundTransparency = 1;
             BorderSizePixel = 0;
-            Size = UDim2.new(0, TabButtonWidth + 8, 1, 0);
+            Size = UDim2.new(0, TabButtonWidth + 28, 0, 26);
             Text = "";
             ZIndex = 5;
             Parent = TabArea;
         });
+        Library:Create('UICorner', { CornerRadius = UDim.new(0, 13); Parent = TabButton; });
 
         local TabFrame;
 
@@ -4221,11 +4244,14 @@ function Tab:ShowTab()
 
     TabFrame.Visible = true;
     TabButtonLabel.TextColor3 = Library.AccentColor;
+    TabButton.BackgroundColor3 = Library.AccentColor;
+    TabButton.BackgroundTransparency = 0.82;
     Library:UpdateColorsUsingRegistry();
 end;
 
 function Tab:HideTab()
     TabFrame.Visible = false;
+    TabButton.BackgroundTransparency = 1;
     TabButtonLabel.TextColor3 = Color3.fromRGB(150, 150, 150);
 end;
 
@@ -4239,6 +4265,7 @@ end;
 
             local BoxOuter = Library:Create('Frame', {
                 BackgroundColor3 = Library.BackgroundColor;
+                BackgroundTransparency = 0.35;
                 BorderColor3 = Library.OutlineColor;
                 BorderMode = Enum.BorderMode.Inset;
                 Size = UDim2.new(1, 0, 0, 507 + 2);
@@ -4253,6 +4280,7 @@ end;
 
             local BoxInner = Library:Create('Frame', {
                 BackgroundColor3 = Library.BackgroundColor;
+                BackgroundTransparency = 1;
                 BorderSizePixel = 0;
                 Size = UDim2.new(1, -2, 1, -2);
                 Position = UDim2.new(0, 1, 0, 1);
@@ -4279,12 +4307,11 @@ end;
             local TextWidth = Library:GetTextBounds(Info.Name, Library.Font, 14);
             local GroupboxLabel = Library:CreateLabel({
                 Size = UDim2.new(0, TextWidth + 8, 0, 14);
-                Position = UDim2.new(0, 12, 0, -8);
+                Position = UDim2.new(0, 10, 0, 6);
                 TextSize = 14;
                 Text = Info.Name;
-                TextXAlignment = Enum.TextXAlignment.Center;
-                BackgroundColor3 = Library.BackgroundColor;
-                BackgroundTransparency = 0;
+                TextXAlignment = Enum.TextXAlignment.Left;
+                BackgroundTransparency = 1;
                 BorderSizePixel = 0;
                 ZIndex = 5;
                 Parent = BoxOuter;
@@ -4297,8 +4324,8 @@ end;
 
             local Container = Library:Create('Frame', {
                 BackgroundTransparency = 1;
-                Position = UDim2.new(0, 8, 0, 10);
-                Size = UDim2.new(1, -16, 1, -20);
+                Position = UDim2.new(0, 8, 0, 26);
+                Size = UDim2.new(1, -16, 1, -34);
                 ZIndex = 1;
                 Parent = BoxInner;
             });
@@ -4318,7 +4345,7 @@ end;
                     end;
                 end;
 
-                BoxOuter.Size = UDim2.new(1, 0, 0, 10 + Size + 10);
+                BoxOuter.Size = UDim2.new(1, 0, 0, 26 + Size + 8);
             end;
 
             local Groupboxes = Tab.Groupboxes;
@@ -4665,15 +4692,15 @@ return Library]==]
         ["MinSlider.Fill.Size = UDim2.new(0, nX, 1, 0);"] = "getgenv().InstanceSetSliderFill(MinSlider.Fill, nX);",
         ["MaxSlider.Fill.Size = UDim2.new(0, nX, 1, 0);"] = "getgenv().InstanceSetSliderFill(MaxSlider.Fill, nX);",
         ["ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;"] = "ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global;\nScreenGui.DisplayOrder = 2147483646;\nScreenGui.IgnoreGuiInset = true;",
-        ["AccentColor = Color3.fromRGB(200, 149, 108)"] = "AccentColor = Color3.fromRGB(0, 200, 255)",
-        ["AccentColor = Color3.fromRGB(200, 149, 106)"] = "AccentColor = Color3.fromRGB(0, 200, 255)",
-        ["AccentColor = Color3.fromRGB(200, 149, 107)"] = "AccentColor = Color3.fromRGB(0, 200, 255)",
-        ["AccentColor = Color3.fromRGB(0, 110, 55)"] = "AccentColor = Color3.fromRGB(0, 200, 255)",
+        ["AccentColor = Color3.fromRGB(200, 149, 108)"] = "AccentColor = Color3.fromRGB(255, 111, 181)",
+        ["AccentColor = Color3.fromRGB(200, 149, 106)"] = "AccentColor = Color3.fromRGB(255, 111, 181)",
+        ["AccentColor = Color3.fromRGB(200, 149, 107)"] = "AccentColor = Color3.fromRGB(255, 111, 181)",
+        ["AccentColor = Color3.fromRGB(0, 110, 55)"] = "AccentColor = Color3.fromRGB(255, 111, 181)",
     }
     for old, new in pairs(replaces) do
         patchedSrc = patchedSrc:gsub(old:gsub("([%(%)%.%%%+%-%*%?%[%]%^%$])", "%%%1"), new)
     end
-    if writefile then pcall(writefile, "InstanceLibrary_Patched.lua", patchedSrc) end
+    if writefile then pcall(writefile, "InstanceLibrary_Patched_v3.lua", patchedSrc) end
     local loader = loadstring or load
     local fn, err = loader(patchedSrc)
     if not fn then
@@ -4689,7 +4716,7 @@ end
 
 local Library = loadInstanceLibrary()
 
-local INSTANCE_ACCENT = Color3.fromRGB(0, 200, 255)
+local INSTANCE_ACCENT = Color3.fromRGB(255, 111, 181)
 local INSTANCE_BROWN_ACCENTS = {
     Color3.fromRGB(200, 149, 108),
     Color3.fromRGB(200, 149, 106),
@@ -5106,8 +5133,8 @@ local ThemeManager = {} do
 	ThemeManager.Library = nil
 	ThemeManager.DefaultTheme = 'Light Hub'
 	ThemeManager.BuiltInThemes = {
-    ['Light Hub'] = { 1, httpService:JSONDecode('{"FontColor":"f5f7ff","MainColor":"0c121d","AccentColor":"5cf5ff","BackgroundColor":"070c14","OutlineColor":"21304a"}') },
-    ['Default'] = { 2, httpService:JSONDecode('{"FontColor":"f5f7ff","MainColor":"0c121d","AccentColor":"5cf5ff","BackgroundColor":"070c14","OutlineColor":"21304a"}') },
+    ['Light Hub'] = { 1, httpService:JSONDecode('{"FontColor":"fff0f7","MainColor":"2a1426","AccentColor":"ff6fb5","BackgroundColor":"1c0d1a","OutlineColor":"5a2d4c"}') },
+    ['Default'] = { 2, httpService:JSONDecode('{"FontColor":"fff0f7","MainColor":"2a1426","AccentColor":"ff6fb5","BackgroundColor":"1c0d1a","OutlineColor":"5a2d4c"}') },
     ['Purple'] = { 3, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1c1c1c","AccentColor":"4400ff","BackgroundColor":"141414","OutlineColor":"323232"}') },
     ['Fatality'] = { 4, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"1e1842","AccentColor":"c50754","BackgroundColor":"191335","OutlineColor":"3c355d"}') },
     ['Mint'] = { 5, httpService:JSONDecode('{"FontColor":"ffffff","MainColor":"242424","AccentColor":"3db488","BackgroundColor":"1c1c1c","OutlineColor":"373737"}') },
@@ -5460,7 +5487,7 @@ local function drawInstanceMenuCursor()
     end
     UserInputServiceMenu.MouseIconEnabled = false
     local mPos = UserInputServiceMenu:GetMouseLocation()
-    local accent = (Library and Library.AccentColor) or Color3.fromRGB(0, 200, 255)
+    local accent = (Library and Library.AccentColor) or Color3.fromRGB(255, 111, 181)
     mc.cursor.Visible = true
     mc.outline.Visible = true
     mc.cursor.Color = accent
@@ -6945,9 +6972,14 @@ local function checkForHit()
 end
 
 
+local silentAimV2FOVContainer, silentAimV2FOVFill, silentAimV2FOVFillGrad, silentAimV2FOVStroke, silentAimV2FOVStrokeGrad
+local silentAimV2Cfg, silentAimV2Center
+local localFighter = nil
+local lastFireV2Time = 0
+
 RunService.RenderStepped:Connect(function()
     local showSilentFOV = silentFOVContainer.Visible
-    local showSilentAimV2FOV = silentAimV2FOVContainer.Visible
+    local showSilentAimV2FOV = silentAimV2FOVContainer and silentAimV2FOVContainer.Visible
     local showAimbotFOV = aimbotFOVContainer.Visible
     local hasTracers     = #bulletTracers > 0
     if not showSilentFOV and not showSilentAimV2FOV and not showAimbotFOV and not hasTracers then
@@ -7118,7 +7150,7 @@ local function shouldHitTarget()
     return math.random(1, 100) <= silentAim.hitChance
 end
 
-local silentAimV2Cfg = {
+silentAimV2Cfg = {
     OutlineColor1       = Color3.fromRGB(0, 255, 128),
     OutlineColor2       = Color3.fromRGB(86, 255, 208),
     OutlineRotation     = 0,
@@ -7135,13 +7167,13 @@ local silentAimV2Cfg = {
     SpinSpd             = 1,
 }
 local silentAimV2FOV = buildfov("SilentAimV2FOV", silentAimV2Cfg)
-local silentAimV2FOVContainer = silentAimV2FOV.container
-local silentAimV2FOVFill = silentAimV2FOV.fill
-local silentAimV2FOVFillGrad = silentAimV2FOV.fillgrad
-local silentAimV2FOVStroke = silentAimV2FOV.stroke
-local silentAimV2FOVStrokeGrad = silentAimV2FOV.strokegrad
+silentAimV2FOVContainer = silentAimV2FOV.container
+silentAimV2FOVFill = silentAimV2FOV.fill
+silentAimV2FOVFillGrad = silentAimV2FOV.fillgrad
+silentAimV2FOVStroke = silentAimV2FOV.stroke
+silentAimV2FOVStrokeGrad = silentAimV2FOV.strokegrad
 
-local function silentAimV2Center()
+function silentAimV2Center()
     return screenCenter(Camera)
 end
 
@@ -7186,6 +7218,10 @@ local function fireSilentAimV2()
         return
     end
 
+    local nowV2 = tick()
+    if nowV2 - lastFireV2Time < 0.05 then
+        return
+    end
     local cw = curweap2()
     if cw and weaponstricted(cw) then
         return
@@ -7223,6 +7259,7 @@ local function fireSilentAimV2()
 
     local shootPos = root.Position
     local targetPos = part.Position
+    lastFireV2Time = nowV2
     local data = {
         [utf8.char(1)] = {
             [utf8.char(0)] = Utility:EncodeCFrame(CFrame.new(shootPos, targetPos)),
@@ -7278,7 +7315,6 @@ local function closestplayerinfov(radius)
 end
 
 
-local localFighter   = nil
 local lastFireTime   = 0
 local fireCooldown   = 0.05
 
@@ -14699,7 +14735,7 @@ if not config.profile.msspoof then
 end
 
 if not config.profile.regionspoof then
-    config.profile.regionspoof = { enabled = false, value = ".gg/getinstance" }
+    config.profile.regionspoof = { enabled = false, value = "discord.gg/feuds" }
 end
 
 _G.FPSSpoofConnections = _G.FPSSpoofConnections or {}
@@ -15018,12 +15054,12 @@ regionTab:AddToggle("RegionSpoofEnabled", {
 
 regionTab:AddInput("RegionSpoofValue", {
     Text = "region value",
-    Default = ".gg/getinstance",
+    Default = "discord.gg/feuds",
     Numeric = false,
     Finished = false,
     Placeholder = "type region...",
     Callback = function(val)
-        config.profile.regionspoof.value = val or ".gg/getinstance"
+        config.profile.regionspoof.value = val or "discord.gg/feuds"
         if config.profile.regionspoof.enabled then
             applyRegionSpoof()
         end
@@ -17057,29 +17093,39 @@ task.spawn(function()
     end
     
     
-    local connection
-    connection = RunService.RenderStepped:Connect(function()
-        if _G.Features.SlideBoost.Enabled and mech and mech.IsSliding then
-            local success = pcall(function()
-                mech._sliding_velocity.Velocity = mech._sliding_velocity.Velocity.Unit * _G.Features.SlideBoost.Speed
+    local function applySlideBoost()
+        if not (_G.Features.SlideBoost.Enabled and mech and mech.IsSliding) then return end
+        local sv = mech._sliding_velocity
+        if not sv then return end
+        local speed = _G.Features.SlideBoost.Speed
+        local ok = pcall(function()
+            if typeof(sv) == "Instance" and sv:IsA("LinearVelocity") then
+                local v = sv.VectorVelocity
+                if v.Magnitude > 0.01 then sv.VectorVelocity = v.Unit * speed end
+            else
+                local v = sv.Velocity
+                if v.Magnitude > 0.01 then sv.Velocity = v.Unit * speed end
+            end
+        end)
+
+        if not ok then
+            local newSuccess, newMech = pcall(function()
+                return require(LocalPlayer.PlayerScripts.Controllers.MechanicsController)
             end)
-            
-            
-            if not success then
-                local newSuccess, newMech = pcall(function()
-                    return require(LocalPlayer.PlayerScripts.Controllers.MechanicsController)
-                end)
-                if newSuccess then
-                    mech = newMech
-                end
+            if newSuccess then
+                mech = newMech
             end
         end
-    end)
+    end
+
+    local connection = RunService.RenderStepped:Connect(applySlideBoost)
+    local connection2 = RunService.Heartbeat:Connect(applySlideBoost)
     
     
     game:GetService("Players").PlayerRemoving:Connect(function(player)
         if player == LocalPlayer then
             connection:Disconnect()
+            connection2:Disconnect()
         end
     end)
 end)
@@ -19871,9 +19917,9 @@ getgenv().crosshair = {
     length = 10,
     radius = 11,
     
-    crosshair_color = Color3.fromRGB(0, 200, 255),
+    crosshair_color = Color3.fromRGB(255, 111, 181),
     
-    color1 = Color3.fromRGB(0, 200, 255),
+    color1 = Color3.fromRGB(255, 111, 181),
     color2 = Color3.fromRGB(0, 153, 255),
     color3 = Color3.fromRGB(0, 107, 255),
     gradient_rotation = 0,
@@ -21616,7 +21662,7 @@ applyKbListTheme = function()
     if not kbList.inner then return end
     local main = kbTheme("MainColor", Color3.fromRGB(28, 28, 28))
     local bg = kbTheme("BackgroundColor", Color3.fromRGB(20, 20, 20))
-    local accent = kbTheme("AccentColor", Color3.fromRGB(0, 200, 255))
+    local accent = kbTheme("AccentColor", Color3.fromRGB(255, 111, 181))
     local font = kbTheme("FontColor", Color3.fromRGB(255, 255, 255))
     local outline = kbTheme("OutlineColor", Color3.fromRGB(50, 50, 50))
 
