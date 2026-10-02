@@ -17093,39 +17093,29 @@ task.spawn(function()
     end
     
     
-    local function applySlideBoost()
-        if not (_G.Features.SlideBoost.Enabled and mech and mech.IsSliding) then return end
-        local sv = mech._sliding_velocity
-        if not sv then return end
-        local speed = _G.Features.SlideBoost.Speed
-        local ok = pcall(function()
-            if typeof(sv) == "Instance" and sv:IsA("LinearVelocity") then
-                local v = sv.VectorVelocity
-                if v.Magnitude > 0.01 then sv.VectorVelocity = v.Unit * speed end
-            else
-                local v = sv.Velocity
-                if v.Magnitude > 0.01 then sv.Velocity = v.Unit * speed end
-            end
-        end)
-
-        if not ok then
-            local newSuccess, newMech = pcall(function()
-                return require(LocalPlayer.PlayerScripts.Controllers.MechanicsController)
+    local connection
+    connection = RunService.RenderStepped:Connect(function()
+        if _G.Features.SlideBoost.Enabled and mech and mech.IsSliding then
+            local success = pcall(function()
+                mech._sliding_velocity.Velocity = mech._sliding_velocity.Velocity.Unit * _G.Features.SlideBoost.Speed
             end)
-            if newSuccess then
-                mech = newMech
+            
+            
+            if not success then
+                local newSuccess, newMech = pcall(function()
+                    return require(LocalPlayer.PlayerScripts.Controllers.MechanicsController)
+                end)
+                if newSuccess then
+                    mech = newMech
+                end
             end
         end
-    end
-
-    local connection = RunService.RenderStepped:Connect(applySlideBoost)
-    local connection2 = RunService.Heartbeat:Connect(applySlideBoost)
+    end)
     
     
     game:GetService("Players").PlayerRemoving:Connect(function(player)
         if player == LocalPlayer then
             connection:Disconnect()
-            connection2:Disconnect()
         end
     end)
 end)
